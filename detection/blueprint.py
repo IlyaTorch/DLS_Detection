@@ -1,10 +1,8 @@
 import cv2
-from flask import Blueprint, render_template, request, jsonify, url_for
+from flask import Blueprint, render_template, request
 from .src.WorkWithImage import WorkWithImage
 
 import torchvision
-import torch
-import numpy as np
 
 detection = Blueprint('detection', __name__, template_folder='templates', static_folder='static')
 
@@ -34,8 +32,8 @@ def detect_image():
         WorkWithImage.save_image_from_url(img_url)
 
     img, img_tensor = WorkWithImage.read_image_to_numpy_and_tensor('static/cache/image_before.jpg')
-    predictions = model(img_tensor)
-    img_with_boxes = WorkWithImage.plot_boxes(img, predictions[0])
+    boxes, labels = WorkWithImage.get_prediction(img_tensor, model)
+    img_with_boxes = WorkWithImage.plot_boxes_and_labels(img, boxes, labels)
     cv2.imwrite('static/cache/image_after.jpg', img_with_boxes)
 
-    return render_template('detection/detection_result.html', predictions=predictions[0])
+    return render_template('detection/detection_result.html')

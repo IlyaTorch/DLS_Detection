@@ -5,13 +5,6 @@
     <title>Detection</title>
 </head>
 <body>
-    <div>
-        {% for key, value in predictions.items() %}
-            <b>{{ key }} : {{ value }}</b>
-            <br>
-        {% endfor %}
-    </div>
-
     <p>Image before detection</p>
     <img src="{{url_for("static", filename="cache/image_before.jpg") }}" alt="image before detection">
     <br>
