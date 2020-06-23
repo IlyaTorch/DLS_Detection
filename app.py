@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 from config import Configuration
-import cv2
+# import cv2
 from src.WorkWithImage import WorkWithImage
 
 import torchvision
@@ -37,7 +37,7 @@ def detect_image():
 
     img, img_tensor = WorkWithImage.read_image_to_numpy_and_tensor('static/cache/image_before.jpg')
     boxes, labels = WorkWithImage.get_prediction(img_tensor, model)
-    img_with_boxes = WorkWithImage.plot_boxes_and_labels(img, boxes, labels)
-    cv2.imwrite('static/cache/image_after.jpg', img_with_boxes)
-
+    # img_with_boxes = WorkWithImage.plot_boxes_and_labels(img, boxes, labels)
+    # cv2.imwrite('static/cache/image_after.jpg', img_with_boxes)
+    return str(boxes) + '=================\n===============' + str(labels)
     return render_template('detection_result.html')

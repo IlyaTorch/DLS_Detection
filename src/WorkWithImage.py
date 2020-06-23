@@ -2,7 +2,7 @@ import json
 import os
 import requests
 
-import cv2  # openCV
+# import cv2  # openCV
 import torch
 
 
@@ -66,27 +66,31 @@ class WorkWithImage:
 
     @staticmethod
     def read_image_to_numpy_and_tensor(img_path: str):
-        img = cv2.imread(img_path)[:, :, ::-1]  # invert channels
+        # img = cv2.imread(img_path)[:, :, ::-1]  # invert channels
+        from PIL import Image
+        from torchvision import transforms
 
+        img = Image.open(img_path)
+        img_tensor = transforms.ToTensor()(img)
         # arr of bytes->float->numpy; put dim of channels to 1 place;
-        img_tensor = torch.from_numpy(img.astype('float32')).permute(2, 0, 1) / 255
+        # img_tensor = torch.from_numpy(img.astype('float32')).permute(2, 0, 1) / 255
 
         img_tensor = img_tensor[None, :]  # add axis
         return img, img_tensor
 
-    @staticmethod
-    def plot_boxes_and_labels(numpy_img, boxes, labels):
-        numpy_img = numpy_img.astype('float32')
-
-        for index, box in enumerate(boxes):
-            numpy_img = cv2.rectangle(numpy_img, (box[0], box[1]), (box[2], box[3]), 255, 1)
-
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            org = (box[0], box[1])
-            font_scale = numpy_img.shape[1] / 1500.0 + 0.2  # for readability of labels
-            color = (255, 0, 0)
-            thickness = 2 if font_scale > 0.5 else 1  # for readability of labels
-            numpy_img = cv2.putText(numpy_img, labels[index], org, font, font_scale, color,
-                                    thickness)
-
-        return numpy_img[:, :, ::-1]
+    # @staticmethod
+    # def plot_boxes_and_labels(numpy_img, boxes, labels):
+    #     numpy_img = numpy_img.astype('float32')
+    #
+    #     for index, box in enumerate(boxes):
+    #         numpy_img = cv2.rectangle(numpy_img, (box[0], box[1]), (box[2], box[3]), 255, 1)
+    #
+    #         font = cv2.FONT_HERSHEY_SIMPLEX
+    #         org = (box[0], box[1])
+    #         font_scale = numpy_img.shape[1] / 1500.0 + 0.2  # for readability of labels
+    #         color = (255, 0, 0)
+    #         thickness = 2 if font_scale > 0.5 else 1  # for readability of labels
+    #         numpy_img = cv2.putText(numpy_img, labels[index], org, font, font_scale, color,
+    #                                 thickness)
+    #
+    #     return numpy_img[:, :, ::-1]
