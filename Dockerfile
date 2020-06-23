@@ -1,7 +1,7 @@
-FROM python:3.7-slim
+FROM python:3.7-buster
 
 COPY . /root
 
 WORKDIR /root
 
-RUN pip install flask gunicorn requests torch opencv_python torchvision
+RUN pip install -r requirements.txt
