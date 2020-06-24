@@ -4,6 +4,7 @@ import itertools
 from typing import List
 import math
 
+
 SSDBoxSizes = collections.namedtuple('SSDBoxSizes', ['min', 'max'])
 
 SSDSpec = collections.namedtuple('SSDSpec', ['feature_map_size', 'shrinkage', 'box_sizes', 'aspect_ratios'])

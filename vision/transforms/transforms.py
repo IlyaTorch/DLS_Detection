@@ -1,6 +1,5 @@
 # from https://github.com/amdegroot/ssd.pytorch
 
-
 import torch
 from torchvision import transforms
 import cv2

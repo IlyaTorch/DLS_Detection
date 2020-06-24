@@ -2,7 +2,6 @@ from flask import Flask, render_template, request
 from config import Configuration
 import cv2
 from src.WorkWithImage import WorkWithImage
-import torchvision
 
 from vision.ssd.mobilenet_v2_ssd_lite import create_mobilenetv2_ssd_lite, create_mobilenetv2_ssd_lite_predictor
 
@@ -42,22 +41,10 @@ def detect_image():
 
     if img_url:
         WorkWithImage.save_image_from_url(img_url)
-    import time
-    img, img_tensor = WorkWithImage.read_image_to_numpy_and_tensor('static/cache/image_before.jpg')
-    print(img_tensor.shape)
-    print('======')
-    start_time = time.monotonic()
 
-    # ====================================
-    boxes, labels, probs = predictor.predict(img, 10, 0.4)
-    # ====================================
-
-
-    boxes, labels = WorkWithImage.get_prediction(img_tensor, model)
-    print(f'{time.monotonic() - start_time} seconds have passed')
-
-    img_with_boxes = WorkWithImage.plot_boxes_and_labels(img, boxes, labels)
-    with open('static/cache/image_after.jpg', 'w') as f:
-        img_with_boxes.save(f)
+    original_image, image = WorkWithImage.read_from_path_to_numpy('static/cache/image_before.jpg')
+    boxes, labels, probs = predictor.predict(image, 10, 0.4)
+    original_image = WorkWithImage.add_prediction_to_image(original_image, boxes, labels, probs, class_names)
+    cv2.imwrite('static/cache/image_after.jpg', original_image)
 
     return render_template('detection_result.html')

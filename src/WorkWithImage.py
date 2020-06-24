@@ -1,4 +1,6 @@
 import os
+
+import cv2
 import requests
 
 # import cv2  # openCV
@@ -41,39 +43,22 @@ class WorkWithImage:
         WorkWithImage.write_image(img, path)
 
     @staticmethod
-    def get_prediction(img_tensor, model, threshold=0.5):
-        prediction = model(img_tensor)
-        # prediction — dict, key 'boxes' — list of coordinates of boxes; filter predictions
-        boxes = prediction[0]['boxes'][prediction[0]['scores'] > threshold]
-        classes = prediction[0]['labels'][prediction[0]['scores'] > threshold]
-        boxes = boxes.detach().numpy()  # detach from the graph of calculations
-        labels = [WorkWithImage.COCO_LABELS[index.item()] for index in classes]
-        return boxes, labels
+    def read_from_path_to_numpy(img_path: str):
+        original_image = cv2.imread(img_path)
+        image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
+        return original_image, image
 
     @staticmethod
-    def read_image_to_numpy_and_tensor(img_path: str):
-        img = Image.open(img_path)
-        print(img.size)
-        print('**********')
-        transform = transforms.Compose([
-            transforms.Resize(800),
-            transforms.CenterCrop(800),
-            transforms.ToTensor(),
-        ])
-        img_tensor = transform(img)
-
-        img_tensor = img_tensor[None, :]  # add axis
-        return img, img_tensor
-
-    @staticmethod
-    def plot_boxes_and_labels(img, boxes, labels):
-        draw = ImageDraw.Draw(img)
-
-        for index, box in enumerate(boxes):
-            draw.rectangle(((box[0], box[1]), (box[2], box[3])), outline='red', width=2)
-
-            size = 30 if img.size[1] > 500 else 10
-            font = ImageFont.truetype('arial.ttf', size)
-            draw.text((box[0], box[1]), labels[index], fill='red', font=font)
-
-        return img
+    def add_prediction_to_image(image, boxes, labels, probs, class_names):
+        for i in range(boxes.size(0)):
+            box = boxes[i, :]
+            cv2.rectangle(image, (box[0], box[1]), (box[2], box[3]), (255, 255, 0), 4)
+            # label = f"""{voc_dataset.class_names[labels[i]]}: {probs[i]:.2f}"""
+            label = f"{class_names[labels[i]]}: {probs[i]:.2f}"
+            cv2.putText(image, label,
+                        (box[0] + 20, box[1] + 40),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        1,  # font scale
+                        (255, 0, 255),
+                        2)  # line type
+        return image

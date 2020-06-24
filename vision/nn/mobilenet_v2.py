@@ -1,6 +1,7 @@
 import torch.nn as nn
 import math
 
+
 # Modified from https://github.com/tonylins/pytorch-mobilenet-v2/blob/master/MobileNetV2.py.
 # In this version, Relu6 is replaced with Relu to make it ONNX compatible.
 # BatchNorm Layer is optional to make it easy do batch norm confusion.

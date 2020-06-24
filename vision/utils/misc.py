@@ -7,6 +7,7 @@ def str2bool(s):
 
 
 class Timer:
+
     def __init__(self):
         self.clock = {}
 
