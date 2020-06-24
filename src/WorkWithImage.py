@@ -1,27 +1,13 @@
-import json
 import os
 import requests
 
 # import cv2  # openCV
+from PIL import Image, ImageDraw, ImageFont
+from torchvision import transforms
 import torch
 
 
 class WorkWithImage:
-    COCO_LABELS = [
-        '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
-        'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'N/A', 'stop sign',
-        'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
-        'elephant', 'bear', 'zebra', 'giraffe', 'N/A', 'backpack', 'umbrella', 'N/A', 'N/A',
-        'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
-        'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
-        'bottle', 'N/A', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl',
-        'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza',
-        'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'N/A', 'dining table',
-        'N/A', 'N/A', 'toilet', 'N/A', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone',
-        'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'N/A', 'book',
-        'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
-    ]
-
     @staticmethod
     def create_folder(path: str):
         path = path.split('/')
@@ -66,31 +52,28 @@ class WorkWithImage:
 
     @staticmethod
     def read_image_to_numpy_and_tensor(img_path: str):
-        # img = cv2.imread(img_path)[:, :, ::-1]  # invert channels
-        from PIL import Image
-        from torchvision import transforms
-
         img = Image.open(img_path)
-        img_tensor = transforms.ToTensor()(img)
-        # arr of bytes->float->numpy; put dim of channels to 1 place;
-        # img_tensor = torch.from_numpy(img.astype('float32')).permute(2, 0, 1) / 255
+        print(img.size)
+        print('**********')
+        transform = transforms.Compose([
+            transforms.Resize(800),
+            transforms.CenterCrop(800),
+            transforms.ToTensor(),
+        ])
+        img_tensor = transform(img)
 
         img_tensor = img_tensor[None, :]  # add axis
         return img, img_tensor
 
-    # @staticmethod
-    # def plot_boxes_and_labels(numpy_img, boxes, labels):
-    #     numpy_img = numpy_img.astype('float32')
-    #
-    #     for index, box in enumerate(boxes):
-    #         numpy_img = cv2.rectangle(numpy_img, (box[0], box[1]), (box[2], box[3]), 255, 1)
-    #
-    #         font = cv2.FONT_HERSHEY_SIMPLEX
-    #         org = (box[0], box[1])
-    #         font_scale = numpy_img.shape[1] / 1500.0 + 0.2  # for readability of labels
-    #         color = (255, 0, 0)
-    #         thickness = 2 if font_scale > 0.5 else 1  # for readability of labels
-    #         numpy_img = cv2.putText(numpy_img, labels[index], org, font, font_scale, color,
-    #                                 thickness)
-    #
-    #     return numpy_img[:, :, ::-1]
+    @staticmethod
+    def plot_boxes_and_labels(img, boxes, labels):
+        draw = ImageDraw.Draw(img)
+
+        for index, box in enumerate(boxes):
+            draw.rectangle(((box[0], box[1]), (box[2], box[3])), outline='red', width=2)
+
+            size = 30 if img.size[1] > 500 else 10
+            font = ImageFont.truetype('arial.ttf', size)
+            draw.text((box[0], box[1]), labels[index], fill='red', font=font)
+
+        return img
